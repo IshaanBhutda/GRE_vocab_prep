@@ -157,7 +157,7 @@ textarea{min-height:110px;resize:vertical}
 <div class="wrap">
 <header>
   <a class="brand" href="#sets">GRE Word Drill</a>
-  <nav><a href="#sets" data-r="sets">Sets</a><a href="#board" data-r="board">Rankings</a><a href="#add" data-r="add">Add words</a></nav>
+  <nav><a href="#sets" data-r="sets">Sets</a><a href="#board" data-r="board">Rankings</a></nav>
   <div class="me" id="me"><span class="nm" id="meName">Checking sign-in…</span></div>
 </header>
 
@@ -263,30 +263,6 @@ textarea{min-height:110px;resize:vertical}
   <p class="sub" style="font-size:13px">To add friends, send them this site’s link. Each person signs in with their own Google account.</p>
 </section>
 
-<!-- ADD WORDS -->
-<section id="v-add" hidden>
-  <h2>Add words</h2>
-  <p class="sub">Sign in to add words. Added words form their own sets (“Added words”), shared with every player, with rankings like the rest.</p>
-  <div class="grid2">
-    <form class="panel" id="addForm">
-      <h3>Add a word</h3>
-      <input type="text" id="aWord" placeholder="Word" maxlength="40" required>
-      <input type="text" id="aDef" placeholder="Definition" maxlength="200" required>
-      <button class="btn primary" type="submit">Add word</button>
-      <div class="eyebrow" style="margin-top:6px">Or paste a list</div>
-      <textarea id="aBulk" placeholder="One per line:&#10;laconic - using few words&#10;obdurate: stubborn"></textarea>
-      <button class="btn" type="button" id="aBulkBtn">Add all lines</button>
-      <div class="sub" id="aMsg" style="font-size:13px"></div>
-    </form>
-    <div class="panel">
-      <h3>Look up a word</h3>
-      <input type="text" id="sIn" placeholder="Search all words…">
-      <ul class="wl" id="sList" style="background:none"></ul>
-      <h3 style="margin-top:8px">Added so far <span class="pill acc" id="cCount">0</span></h3>
-      <ul class="wl" id="cList" style="background:none"></ul>
-    </div>
-  </div>
-</section>
 </main>
 </div>
 <div class="toast" id="toast" hidden></div>

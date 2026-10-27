@@ -305,18 +305,21 @@ function openRename() {
 }
 
 /* ---------- theme ---------- */
-function loadTheme() { try { return JSON.parse(localStorage.getItem('gwd-theme') || '{}'); } catch (e) { return {}; } }
-function applyTheme(t) {
-  const r = document.documentElement;
-  if (t.m === 'light' || t.m === 'dark') r.setAttribute('data-theme', t.m); else r.removeAttribute('data-theme');
-  if (t.a && t.a !== 'indigo') r.setAttribute('data-accent', t.a); else r.removeAttribute('data-accent');
-  $('modeSeg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === (t.m || 'system')));
-  $('accSeg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.a === (t.a || 'indigo')));
-  try { localStorage.setItem('gwd-theme', JSON.stringify(t)); } catch (e) {}
+const SKINS = [['auto', 'Auto'], ['dusk', 'Dusk'], ['paper', 'Paper'], ['earthy', 'Earthy'], ['forest', 'Forest'], ['ocean', 'Ocean'], ['space', 'Space'], ['sakura', 'Sakura']];
+function loadSkin() { try { return JSON.parse(localStorage.getItem('gwd-theme') || '{}').s || 'auto'; } catch (e) { return 'auto'; } }
+function applySkin(k) {
+  if (k === 'auto') document.documentElement.removeAttribute('data-skin'); else document.documentElement.setAttribute('data-skin', k);
+  $('skinGrid').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  try { localStorage.setItem('gwd-theme', JSON.stringify({ s: k })); } catch (e) {}
 }
-let theme = loadTheme(); applyTheme(theme);
-$('modeSeg').querySelectorAll('button').forEach(b => b.onclick = () => { theme = { ...theme, m: b.dataset.m }; applyTheme(theme); });
-$('accSeg').querySelectorAll('button').forEach(b => b.onclick = () => { theme = { ...theme, a: b.dataset.a }; applyTheme(theme); });
+SKINS.forEach(([k, label]) => {
+  const b = el('button', 'skin' + (k === 'auto' ? ' auto' : '')); b.dataset.k = k; b.type = 'button';
+  if (k !== 'auto') { b.dataset.skin = k; const c = el('span', 'chips'); ['--surface', '--accent', '--good', '--gold'].forEach(v => { const i = el('i'); i.style.background = 'var(' + v + ')'; c.append(i); }); b.append(c); }
+  b.append(el('span', null, label + (k === 'auto' ? ' (match device)' : '')));
+  b.onclick = () => applySkin(k);
+  $('skinGrid').append(b);
+});
+applySkin(loadSkin());
 document.addEventListener('click', e => { const d = $('theme'); if (d.open && !d.contains(e.target)) d.open = false; });
 
 /* ---------- keyboard ---------- */

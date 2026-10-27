@@ -304,6 +304,21 @@ function openRename() {
   f.onsubmit = e => { e.preventDefault(); me.nick = i.value.trim().slice(0, 24); renderMe(); saveMe(); toast('Name saved'); };
 }
 
+/* ---------- theme ---------- */
+function loadTheme() { try { return JSON.parse(localStorage.getItem('gwd-theme') || '{}'); } catch (e) { return {}; } }
+function applyTheme(t) {
+  const r = document.documentElement;
+  if (t.m === 'light' || t.m === 'dark') r.setAttribute('data-theme', t.m); else r.removeAttribute('data-theme');
+  if (t.a && t.a !== 'indigo') r.setAttribute('data-accent', t.a); else r.removeAttribute('data-accent');
+  $('modeSeg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === (t.m || 'system')));
+  $('accSeg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.a === (t.a || 'indigo')));
+  try { localStorage.setItem('gwd-theme', JSON.stringify(t)); } catch (e) {}
+}
+let theme = loadTheme(); applyTheme(theme);
+$('modeSeg').querySelectorAll('button').forEach(b => b.onclick = () => { theme = { ...theme, m: b.dataset.m }; applyTheme(theme); });
+$('accSeg').querySelectorAll('button').forEach(b => b.onclick = () => { theme = { ...theme, a: b.dataset.a }; applyTheme(theme); });
+document.addEventListener('click', e => { const d = $('theme'); if (d.open && !d.contains(e.target)) d.open = false; });
+
 /* ---------- keyboard ---------- */
 addEventListener('keydown', e => {
   if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || $('v-set').hidden) return;

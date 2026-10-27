@@ -41,8 +41,8 @@ function route() {
     const s = SETMAP.get(h.slice(4));
     if (!s) { if (!BASE.length) return; view = 'sets'; } else { view = 'set'; if (curSet !== s) openSet(s); }
   }
-  if (!['sets', 'set', 'board', 'add'].includes(view)) view = 'sets';
-  ['sets', 'set', 'board', 'add'].forEach(v => $('v-' + v).hidden = v !== view);
+  if (!['sets', 'set', 'board'].includes(view)) view = 'sets';
+  ['sets', 'set', 'board'].forEach(v => $('v-' + v).hidden = v !== view);
   document.querySelectorAll('nav a').forEach(a => { if (a.dataset.r === view || (view === 'set' && a.dataset.r === 'sets')) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   if (view !== 'set') stopQuiz();
   if (view === 'sets') renderHome();
@@ -284,43 +284,7 @@ async function flushProgress() {
 }
 try { const p = JSON.parse(localStorage.getItem('gwd2-prog') || 'null'); if (p) prog = { known: new Set(p.known), learning: new Set(p.learning) }; } catch (e) {}
 
-/* ---------- add words ---------- */
-function addCustom(w, d) {
-  w = w.trim().toLowerCase(); d = d.trim(); if (!w || !d) return false;
-  if (!db) { CUSTOM.push({ w, d, f: d, at: Date.now(), custom: true }); afterCustom(); return true; }
-  if (!uid) { toast('Sign in with Google to add words.'); return false; }
-  db.collection('custom').add({ w, d, by: uid, at: Date.now() }).catch(() => toast('Couldn’t add “' + w + '”. Check your connection.'));
-  return true;
-}
-$('addForm').onsubmit = e => { e.preventDefault(); const w = $('aWord').value.trim(); if (addCustom(w, $('aDef').value)) { toast('Added “' + w + '”'); $('aWord').value = ''; $('aDef').value = ''; $('aWord').focus(); } };
-$('aBulkBtn').onclick = () => {
-  const lines = $('aBulk').value.split('\n').map(s => s.trim()).filter(Boolean); let n = 0, bad = 0;
-  lines.forEach(l => { const m = l.match(/^(.+?)\s*(?:\s[-–—]\s|:|\t|=)\s*(.+)$/); if (m && addCustom(m[1], m[2])) n++; else bad++; });
-  $('aMsg').textContent = n + ' added' + (bad ? ' · ' + bad + ' skipped (use “word - definition”)' : ''); if (n) $('aBulk').value = '';
-};
-function afterCustom() {
-  buildSets(); renderCustom();
-  if (curSet && curSet.custom) { const s = SETMAP.get(curSet.id); if (s) { curSet = s; deck = s.words.slice(); if (ci >= deck.length) ci = 0; } }
-  if (!$('v-sets').hidden) renderHome();
-}
-function renderCustom() {
-  $('cCount').textContent = CUSTOM.length; const ul = $('cList'); ul.innerHTML = '';
-  if (!CUSTOM.length) { ul.append(el('li', 'sub', 'No added words yet.')); return; }
-  CUSTOM.slice().sort((a, b) => b.at - a.at).slice(0, 50).forEach(x => {
-    const li = el('li'); li.append(el('b', null, x.w));
-    const s = el('span', null, x.d + ' ');
-    if (db && x.id && (x.by === uid || isOwner)) { const del = el('button', 'linkbtn', 'Remove'); del.onclick = () => db.doc('custom/' + x.id).delete().catch(() => toast('Couldn’t remove it.')); s.append(del); }
-    li.append(s); ul.append(li);
-  });
-}
-$('sIn').oninput = () => {
-  const q = $('sIn').value.trim().toLowerCase(), ul = $('sList'); ul.innerHTML = ''; if (q.length < 2) return;
-  const A = allWords(); const hits = A.filter(x => x.w.startsWith(q)).concat(A.filter(x => !x.w.startsWith(q) && x.w.includes(q))).slice(0, 6);
-  if (!hits.length) { ul.append(el('li', 'sub', 'No match. Add it on the left.')); return; }
-  hits.forEach(x => { const li = el('li'); const s = SETS.find(st => st.words.includes(x)); li.append(el('b', null, x.w), el('span', null, (x.f || x.d) + (s ? '  · ' + s.label : ''))); ul.append(li); });
-};
 
-/* ---------- account ---------- */
 function signIn() { if (!auth) return toast('Sign-in isn’t set up yet.'); AU.signInWithPopup(auth, new AU.GoogleAuthProvider()).catch(e => { if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') toast('Sign-in didn’t finish. Try again.'); }); }
 $('signinBtn2').onclick = signIn;
 function renderMe() {
@@ -353,7 +317,7 @@ addEventListener('keydown', e => {
 });
 
 /* ---------- boot ---------- */
-fetch('words.json').then(r => r.json()).then(d => { BASE = d; buildSets(); renderCustom(); route(); })
+fetch('words.json').then(r => r.json()).then(d => { BASE = d; buildSets(); route(); })
   .catch(() => { $('homeSub').textContent = 'Couldn’t load the word list. Reload the page to try again.'; });
 
 function adapter(F, fs) {
@@ -380,10 +344,6 @@ function adapter(F, fs) {
     if (!$('v-sets').hidden) renderHome();
     if (!$('v-board').hidden) renderBoard();
     if (!$('v-set').hidden && curTab === 'rank') renderSetRank();
-  }, () => {});
-  db.collection('custom').onSnapshot(snap => {
-    CUSTOM = snap.docs.map(d => { const x = d.data(); return { id: d.id, w: String(x.w || ''), d: String(x.d || ''), f: String(x.d || ''), by: x.by, at: x.at || 0, custom: true }; }).filter(x => x.w && x.d);
-    if (BASE.length) { afterCustom(); if (location.hash.startsWith('#set-a') && !curSet) route(); }
   }, () => {});
   let first = true;
   A.onAuthStateChanged(auth, async u => {

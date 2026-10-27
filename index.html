@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Free GRE vocabulary practice: flashcards, quizzes and rankings with friends.">
+<title>GRE Word Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: app shell, one 880px column. Home = grid of numbered set tiles (sets are a real ordered sequence: most GRE-relevant first). Set page = Prepare / Quiz / Rankings / Word list. */
+:root{
+  --bg:#0F1226; --surface:#1B2040; --surface2:#262C52; --ink:#EEF0FA; --muted:#A1A7C8; --rule:#2F3663;
+  --accent:#7383FF; --accent-ink:#0F1226; --accent-soft:rgba(115,131,255,.16);
+  --good:#3DD68C; --good-soft:rgba(61,214,140,.14); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --gold:#FFC857;
+  --f-ui:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-word:"Newsreader",Georgia,"Times New Roman",serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#F2F3F9; --surface:#FFFFFF; --surface2:#E7E9F4; --ink:#161A33; --muted:#5A6082; --rule:#D9DCEB;
+  --accent:#3F51E6; --accent-ink:#FFFFFF; --accent-soft:rgba(63,81,230,.1);
+  --good:#13874F; --good-soft:rgba(19,135,79,.1); --bad:#CF3535; --bad-soft:rgba(207,53,53,.1); --gold:#A86B12; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#F2F3F9; --surface:#FFFFFF; --surface2:#E7E9F4; --ink:#161A33; --muted:#5A6082; --rule:#D9DCEB;
+  --accent:#3F51E6; --accent-ink:#FFFFFF; --accent-soft:rgba(63,81,230,.1);
+  --good:#13874F; --good-soft:rgba(19,135,79,.1); --bad:#CF3535; --bad-soft:rgba(207,53,53,.1); --gold:#A86B12; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:880px;margin:0 auto}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:14px;border-bottom:1px solid var(--rule)}
+.brand{font:700 19px var(--f-ui);margin:0;text-decoration:none;letter-spacing:-.01em}
+nav{display:flex;gap:4px}
+nav a{padding:7px 12px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:600;font-size:14px}
+nav a[aria-current="page"]{background:var(--surface2);color:var(--ink)}
+.me{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
+.me img{width:28px;height:28px;border-radius:50%}
+.me b{color:var(--ink);font-weight:600}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;font-size:13px;padding:0}
+
+main{padding-block:24px}
+h2{font:700 28px/1.15 var(--f-ui);margin:0;letter-spacing:-.015em;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.btn{border:0;background:var(--surface2);border-radius:10px;padding:10px 18px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.4;cursor:default}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.acc{background:var(--accent-soft);color:var(--accent)} .pill.gold{color:var(--gold);background:var(--surface2)}
+.banner{background:var(--accent-soft);border-radius:12px;padding:14px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.banner p{margin:0;flex:1;min-width:220px}
+
+/* home */
+.homehead{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--rule);background:none;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.band{margin:22px 0 10px;display:flex;align-items:baseline;gap:10px}
+.band h3{margin:0;font-size:15px}
+.band span{color:var(--muted);font-size:13px}
+.sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.set{display:grid;gap:8px;background:var(--surface);border-radius:14px;padding:14px 16px;text-decoration:none;border:1px solid transparent;min-width:0}
+.set:hover{border-color:var(--accent)}
+.set .top{display:flex;justify-content:space-between;align-items:center}
+.set .n{font-weight:700;font-size:16px}
+.set .preview{font:500 15px/1.35 var(--f-word);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.set .foot{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);gap:8px}
+.set .foot b{color:var(--ink)}
+.bar{height:4px;border-radius:4px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good)}
+
+/* set page */
+.back{display:inline-block;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:10px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 18px}
+.tabs button{border:0;background:var(--surface);border-radius:12px;padding:12px 8px;font-weight:600;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--surface2);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.scene{perspective:1400px}
+.flash{position:relative;height:340px;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,.7,.3,1);cursor:pointer}
+.flash.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:16px;padding:20px 26px;display:flex;flex-direction:column}
+.face .hd{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:600}
+.front .w{margin:auto;font:600 clamp(34px,8vw,54px)/1.05 var(--f-word);text-align:center;overflow-wrap:anywhere}
+.back2{transform:rotateY(180deg)}
+.back2 .body{margin:auto 0;display:grid;gap:10px}
+.back2 .d{font:500 clamp(20px,4.4vw,26px)/1.35 var(--f-word);margin:0}
+.back2 .f{color:var(--muted);font-size:14px;margin:0}
+.cardnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.round{width:52px;height:44px;border-radius:999px;border:0;background:var(--surface2);font-size:18px}
+.marks{display:flex;gap:8px}
+.marks .btn.learn{background:var(--bad-soft);color:var(--bad)} .marks .btn.know{background:var(--good-soft);color:var(--good)}
+.hint{color:var(--muted);font-size:12px;text-align:center;margin-top:10px}
+.progressline{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:14px}
+.cta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border-radius:14px;padding:16px 18px;margin-top:18px}
+.cta p{margin:0}
+
+.qcard{background:var(--surface);border-radius:16px;padding:20px 22px}
+.qtop{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.qbar{height:4px;background:var(--surface2);border-radius:4px;margin:10px 0 0;overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.prompt{margin:20px 0}
+.prompt .w{font:600 clamp(30px,7vw,44px)/1.1 var(--f-word)}
+.prompt .d{font:500 clamp(19px,4vw,23px)/1.4 var(--f-word)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;text-align:left;align-items:flex-start;border:2px solid var(--rule);background:none;border-radius:12px;padding:12px 14px;line-height:1.4;min-width:0}
+.opt .k{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--muted);background:var(--surface2);border-radius:6px;padding:1px 7px}
+.opt.word{font:600 19px var(--f-word)}
+.opt:not(:disabled):hover{border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:var(--good-soft)} .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surface2);font-size:14px}
+.fb b{font:600 17px var(--f-word)}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.big{font:700 60px/1 var(--f-ui);letter-spacing:-.03em}
+.result{display:grid;gap:16px}
+.misslist{list-style:none;padding:0;margin:0}
+.misslist li{padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.misslist b{font:600 16px var(--f-word);margin-right:8px}
+
+.tablewrap{overflow-x:auto;background:var(--surface);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--rule)}
+td{padding:11px 14px;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.num{text-align:right}
+tr.mine td{background:var(--accent-soft)}
+.rk{font-weight:700;width:48px}
+.rk.r1{color:var(--gold)}
+.who{display:flex;align-items:center;gap:8px}
+.who img{width:24px;height:24px;border-radius:50%}
+.empty{color:var(--muted);padding:18px 14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.stats div{background:var(--surface);border-radius:12px;padding:12px 14px}
+.stats .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stats .k{font-size:12px;color:var(--muted)}
+.wl{list-style:none;padding:0;margin:0;background:var(--surface);border-radius:14px}
+.wl li{display:grid;grid-template-columns:minmax(110px,180px) 1fr;gap:14px;padding:11px 16px;border-bottom:1px solid var(--rule)}
+.wl li:last-child{border-bottom:0}
+.wl b{font:600 17px var(--f-word);overflow-wrap:anywhere}
+.wl span{color:var(--muted);font-size:14px;min-width:0}
+.panel{background:var(--surface);border-radius:14px;padding:18px 20px;display:grid;gap:10px;align-content:start;min-width:0}
+.panel h3{margin:0;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+input[type=text],textarea{background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:9px 12px;width:100%}
+textarea{min-height:110px;resize:vertical}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;z-index:20}
+@media (max-width:640px){.opts{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.wl li{grid-template-columns:1fr;gap:2px}.me span.nm{display:none}}
+@media (prefers-reduced-motion:reduce){.flash,.qbar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="#sets">GRE Word Drill</a>
+  <nav><a href="#sets" data-r="sets">Sets</a><a href="#board" data-r="board">Rankings</a><a href="#add" data-r="add">Add words</a></nav>
+  <div class="me" id="me"><span class="nm" id="meName">Checking sign-in…</span></div>
+</header>
+
+<main>
+<div class="banner" id="signin" hidden>
+  <p><b>Sign in to compete.</b> Sign in with Google to save your progress and appear on the rankings. You can practise without signing in.</p><button class="btn primary" id="signinBtn2">Sign in with Google</button>
+</div>
+<div class="banner" id="nowrite" hidden>
+  <p id="nowriteText">Your scores couldn’t be saved. Try signing out and in again.</p>
+</div>
+
+<!-- HOME: sets -->
+<section id="v-sets">
+  <div class="homehead">
+    <div><h2>Word sets</h2><p class="sub" id="homeSub">Loading words…</p></div>
+    <div class="filters" id="filters">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="todo" aria-pressed="false">Not quizzed</button>
+      <button class="chip" data-f="done" aria-pressed="false">Quizzed</button>
+    </div>
+  </div>
+  <div id="setBands"></div>
+</section>
+
+<!-- SET PAGE -->
+<section id="v-set" hidden>
+  <a class="back" href="#sets">← All sets</a>
+  <div class="eyebrow" id="sEyebrow"></div>
+  <h2 id="sTitle">Set</h2>
+  <p class="sub" id="sSub"></p>
+  <div class="tabs" role="group">
+    <button data-t="prep" aria-pressed="true">1 · Prepare</button>
+    <button data-t="quiz" aria-pressed="false">2 · Quiz</button>
+    <button data-t="rank" aria-pressed="false">Rankings</button>
+    <button data-t="list" aria-pressed="false">Word list</button>
+  </div>
+
+  <div id="t-prep">
+    <div class="scene"><div class="flash" id="flash" tabindex="0" role="button" aria-label="Flip card">
+      <div class="face front"><div class="hd"><span id="fPos"></span><span id="fTag"></span></div><div class="w" id="fWord"></div></div>
+      <div class="face back2"><div class="hd"><span id="bWord" style="font:600 18px var(--f-word);color:var(--ink)"></span><span id="bPos"></span></div><div class="body"><p class="d" id="bDef"></p><p class="f" id="bFull"></p></div></div>
+    </div></div>
+    <div class="cardnav">
+      <button class="round" id="cPrev" aria-label="Previous card">←</button>
+      <div class="marks"><button class="btn learn" id="cLearn">Still learning</button><button class="btn know" id="cKnow">Know it</button></div>
+      <button class="round" id="cNext" aria-label="Next card">→</button>
+    </div>
+    <div class="hint">Space flips · ← → move · L still learning · K know it · <button class="linkbtn" id="cShuf">Shuffle</button></div>
+    <div class="progressline"><span id="pKnown"></span><span id="pLearn"></span></div>
+    <div class="bar" style="margin-top:6px"><i id="pBar" style="width:0"></i></div>
+    <div class="cta"><p id="ctaText">Ready? Take the quiz to get on this set’s rankings.</p><button class="btn primary" id="toQuiz">Take the quiz</button></div>
+  </div>
+
+  <div id="t-quiz" hidden>
+    <div id="qIntro" class="panel">
+      <h3>Set quiz</h3>
+      <p style="margin:0">Every word in the set once, in random order. Half the questions show a word, half show a meaning, each with 4 options. Your <b>best</b> accuracy counts on the rankings. Ties go to the faster time.</p>
+      <p style="margin:0;color:var(--muted)" id="qMyBest"></p>
+      <div><button class="btn primary" id="qStart">Start quiz</button></div>
+    </div>
+    <div id="qRun" hidden>
+      <div class="qcard">
+        <div class="qtop"><span id="qPos"></span><span id="qTime">0:00</span><span id="qScore"></span></div>
+        <div class="qbar"><i id="qBar"></i></div>
+        <div class="prompt" id="qPrompt"></div>
+        <div class="opts" id="qOpts"></div>
+        <div class="fb" id="qFb" hidden></div>
+        <div class="qfoot"><button class="btn" id="qQuit">Quit</button><button class="btn primary" id="qNext" hidden>Next</button></div>
+      </div>
+      <div class="hint">Press 1–4 to answer, Enter for next. Quitting early doesn’t count.</div>
+    </div>
+    <div id="qDone" class="panel result" hidden>
+      <div class="eyebrow">Quiz finished</div>
+      <div><span class="big" id="rPct"></span> <span id="rLine" style="color:var(--muted)"></span></div>
+      <div id="rBest"></div>
+      <div id="rMissWrap"><div class="eyebrow" style="margin-bottom:6px">Review these</div><ul class="misslist" id="rMiss"></ul></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="rRank">See rankings</button><button class="btn" id="rAgain">Retake</button><button class="btn" id="rNextSet">Next set →</button></div>
+    </div>
+  </div>
+
+  <div id="t-rank" hidden>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Player</th><th class="num">Best accuracy</th><th class="num">Time</th><th class="num">Attempts</th></tr></thead>
+      <tbody id="srBody"></tbody></table></div>
+  </div>
+
+  <div id="t-list" hidden><ul class="wl" id="wlist"></ul></div>
+</section>
+
+<!-- OVERALL RANKINGS -->
+<section id="v-board" hidden>
+  <h2>Rankings</h2>
+  <p class="sub">Ranked by average best accuracy across the sets each player has quizzed. You need 3 sets to get a rank.</p>
+  <div class="stats">
+    <div><div class="v" id="mAvg">—</div><div class="k">Your average</div></div>
+    <div><div class="v" id="mSets">0</div><div class="k">Sets quizzed</div></div>
+    <div><div class="v" id="mWins">0</div><div class="k">Sets you lead</div></div>
+    <div><div class="v" id="mRank">—</div><div class="k">Overall rank</div></div>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Player</th><th class="num">Avg accuracy</th><th class="num">Sets</th><th class="num">Sets led</th></tr></thead>
+    <tbody id="obBody"></tbody></table></div>
+  <p class="sub" style="font-size:13px">To add friends, send them this site’s link. Each person signs in with their own Google account.</p>
+</section>
+
+<!-- ADD WORDS -->
+<section id="v-add" hidden>
+  <h2>Add words</h2>
+  <p class="sub">Sign in to add words. Added words form their own sets (“Added words”), shared with every player, with rankings like the rest.</p>
+  <div class="grid2">
+    <form class="panel" id="addForm">
+      <h3>Add a word</h3>
+      <input type="text" id="aWord" placeholder="Word" maxlength="40" required>
+      <input type="text" id="aDef" placeholder="Definition" maxlength="200" required>
+      <button class="btn primary" type="submit">Add word</button>
+      <div class="eyebrow" style="margin-top:6px">Or paste a list</div>
+      <textarea id="aBulk" placeholder="One per line:&#10;laconic - using few words&#10;obdurate: stubborn"></textarea>
+      <button class="btn" type="button" id="aBulkBtn">Add all lines</button>
+      <div class="sub" id="aMsg" style="font-size:13px"></div>
+    </form>
+    <div class="panel">
+      <h3>Look up a word</h3>
+      <input type="text" id="sIn" placeholder="Search all words…">
+      <ul class="wl" id="sList" style="background:none"></ul>
+      <h3 style="margin-top:8px">Added so far <span class="pill acc" id="cCount">0</span></h3>
+      <ul class="wl" id="cList" style="background:none"></ul>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

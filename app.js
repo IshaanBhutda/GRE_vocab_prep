@@ -133,6 +133,25 @@ function mark(kind) {
   saveProgress(); move(1);
 }
 $('flash').onclick = () => $('flash').classList.toggle('flipped');
+/* pronunciation (browser speech) */
+const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
+let voice = null;
+function pickVoice() {
+  if (!TTS) return; const vs = TTS.getVoices().filter(v => /^en[-_]/i.test(v.lang)); if (!vs.length) return;
+  const pref = [/Samantha|Google US English|Microsoft (Aria|Jenny|Guy)/i, /en[-_]US/i, /en[-_]GB/i];
+  for (const r of pref) { const v = vs.find(x => r.test(x.name) || r.test(x.lang)); if (v) { voice = v; return; } }
+  voice = vs[0];
+}
+if (TTS) { pickVoice(); TTS.onvoiceschanged = pickVoice; } else { $('fSpeak').hidden = true; $('bSpeak').hidden = true; }
+function speak(text) {
+  if (!TTS || !text) return;
+  TTS.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/\(.*?\)/g, '')); u.lang = voice ? voice.lang : 'en-US'; if (voice) u.voice = voice; u.rate = 0.9;
+  ['fSpeak', 'bSpeak'].forEach(id => $(id).classList.add('on'));
+  u.onend = u.onerror = () => ['fSpeak', 'bSpeak'].forEach(id => $(id).classList.remove('on'));
+  TTS.speak(u);
+}
+['fSpeak', 'bSpeak'].forEach(id => $(id).onclick = e => { e.stopPropagation(); const x = deck[ci]; if (x) speak(x.w); });
 $('cPrev').onclick = () => move(-1); $('cNext').onclick = () => move(1);
 $('cKnow').onclick = () => mark('know'); $('cLearn').onclick = () => mark('learn');
 $('cShuf').onclick = () => { deck = shuffle(deck); ci = 0; renderCard(); toast('Shuffled'); };
@@ -328,6 +347,7 @@ addEventListener('keydown', e => {
   if (curTab === 'prep') {
     if (e.key === ' ') { e.preventDefault(); $('flash').classList.toggle('flipped'); }
     else if (e.key === 'ArrowRight') move(1); else if (e.key === 'ArrowLeft') move(-1);
+    else if (e.key === 's' || e.key === 'S') { const x = deck[ci]; if (x) speak(x.w); }
     else if (e.key === 'k' || e.key === 'K') mark('know'); else if (e.key === 'l' || e.key === 'L') mark('learn');
   } else if (curTab === 'quiz' && !$('qRun').hidden) {
     if (/^[1-4]$/.test(e.key)) answer(+e.key - 1); else if (e.key === 'Enter') { e.preventDefault(); nextQ(); }

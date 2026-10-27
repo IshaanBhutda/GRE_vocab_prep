@@ -124,6 +124,12 @@ h2{font:700 28px/1.15 var(--f-ui);margin:0;letter-spacing:-.015em;text-wrap:bala
 .flash.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:16px;padding:20px 26px;display:flex;flex-direction:column}
 .face .hd{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:600}
+.face .hd{align-items:center}
+.hdr{display:flex;align-items:center;gap:10px}
+.speak{width:38px;height:38px;border-radius:999px;border:0;background:var(--surface2);color:var(--ink);display:grid;place-items:center;padding:0}
+.speak svg{width:19px;height:19px}
+.speak:hover{background:var(--accent-soft);color:var(--accent)}
+.speak.on{background:var(--accent);color:var(--accent-ink)}
 .front .w{margin:auto;font:600 clamp(34px,8vw,54px)/1.05 var(--f-word);text-align:center;overflow-wrap:anywhere}
 .back2{transform:rotateY(180deg)}
 .back2 .body{margin:auto 0;display:grid;gap:10px}
@@ -246,15 +252,15 @@ textarea{min-height:110px;resize:vertical}
 
   <div id="t-prep">
     <div class="scene"><div class="flash" id="flash" tabindex="0" role="button" aria-label="Flip card">
-      <div class="face front"><div class="hd"><span id="fPos"></span><span id="fTag"></span></div><div class="w" id="fWord"></div></div>
-      <div class="face back2"><div class="hd"><span id="bWord" style="font:600 18px var(--f-word);color:var(--ink)"></span><span id="bPos"></span></div><div class="body"><p class="d" id="bDef"></p><p class="f" id="bFull"></p></div></div>
+      <div class="face front"><div class="hd"><span id="fPos"></span><span class="hdr"><span id="fTag"></span><button class="speak" id="fSpeak" type="button" aria-label="Hear the word" title="Hear it (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></span></div><div class="w" id="fWord"></div></div>
+      <div class="face back2"><div class="hd"><span id="bWord" style="font:600 18px var(--f-word);color:var(--ink)"></span><span class="hdr"><span id="bPos"></span><button class="speak" id="bSpeak" type="button" aria-label="Hear the word" title="Hear it (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></span></div><div class="body"><p class="d" id="bDef"></p><p class="f" id="bFull"></p></div></div>
     </div></div>
     <div class="cardnav">
       <button class="round" id="cPrev" aria-label="Previous card">←</button>
       <div class="marks"><button class="btn learn" id="cLearn">Still learning</button><button class="btn know" id="cKnow">Know it</button></div>
       <button class="round" id="cNext" aria-label="Next card">→</button>
     </div>
-    <div class="hint">Space flips · ← → move · L still learning · K know it · <button class="linkbtn" id="cShuf">Shuffle</button></div>
+    <div class="hint">Space flips · ← → move · S hear it · L still learning · K know it · <button class="linkbtn" id="cShuf">Shuffle</button></div>
     <div class="progressline"><span id="pKnown"></span><span id="pLearn"></span></div>
     <div class="bar" style="margin-top:6px"><i id="pBar" style="width:0"></i></div>
     <div class="cta"><p id="ctaText">Ready? Take the quiz to get on this set’s rankings.</p><button class="btn primary" id="toQuiz">Take the quiz</button></div>

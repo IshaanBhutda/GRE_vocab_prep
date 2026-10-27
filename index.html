@@ -10,7 +10,8 @@
 /* Layout: app shell, one 880px column. Home = grid of numbered set tiles (sets are a real ordered sequence: most GRE-relevant first). Set page = Prepare / Quiz / Rankings / Word list. */
 :root{
   --bg:#0F1226; --surface:#1B2040; --surface2:#262C52; --ink:#EEF0FA; --muted:#A1A7C8; --rule:#2F3663;
-  --accent:#7383FF; --accent-ink:#0F1226; --accent-soft:rgba(115,131,255,.16);
+  --acc-l:#3F51E6; --acc-d:#7383FF;
+  --accent:var(--acc-d); --accent-ink:#0F1226; --accent-soft:color-mix(in srgb,var(--accent) 16%,transparent);
   --good:#3DD68C; --good-soft:rgba(61,214,140,.14); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --gold:#FFC857;
   --f-ui:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-word:"Newsreader",Georgia,"Times New Roman",serif;
@@ -18,12 +19,16 @@
 }
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
   --bg:#F2F3F9; --surface:#FFFFFF; --surface2:#E7E9F4; --ink:#161A33; --muted:#5A6082; --rule:#D9DCEB;
-  --accent:#3F51E6; --accent-ink:#FFFFFF; --accent-soft:rgba(63,81,230,.1);
+  --accent:var(--acc-l); --accent-ink:#FFFFFF; --accent-soft:color-mix(in srgb,var(--accent) 11%,transparent);
   --good:#13874F; --good-soft:rgba(19,135,79,.1); --bad:#CF3535; --bad-soft:rgba(207,53,53,.1); --gold:#A86B12; color-scheme:light}}
 :root[data-theme="light"]{
   --bg:#F2F3F9; --surface:#FFFFFF; --surface2:#E7E9F4; --ink:#161A33; --muted:#5A6082; --rule:#D9DCEB;
-  --accent:#3F51E6; --accent-ink:#FFFFFF; --accent-soft:rgba(63,81,230,.1);
+  --accent:var(--acc-l); --accent-ink:#FFFFFF; --accent-soft:color-mix(in srgb,var(--accent) 11%,transparent);
   --good:#13874F; --good-soft:rgba(19,135,79,.1); --bad:#CF3535; --bad-soft:rgba(207,53,53,.1); --gold:#A86B12; color-scheme:light}
+:root[data-accent="teal"]{--acc-l:#0B7A70; --acc-d:#3CCFBF}
+:root[data-accent="rose"]{--acc-l:#C2335E; --acc-d:#FF7FA2}
+:root[data-accent="amber"]{--acc-l:#9A5800; --acc-d:#FFB547}
+:root[data-accent="violet"]{--acc-l:#7A3FD6; --acc-d:#B78CFF}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -42,6 +47,17 @@ nav a[aria-current="page"]{background:var(--surface2);color:var(--ink)}
 .me{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
 .me img{width:28px;height:28px;border-radius:50%}
 .me b{color:var(--ink);font-weight:600}
+.theme{position:relative}
+.theme summary{list-style:none;cursor:pointer;width:34px;height:34px;border-radius:999px;display:grid;place-items:center;background:var(--surface2);color:var(--ink)}
+.theme summary::-webkit-details-marker{display:none}
+.theme summary svg{width:18px;height:18px}
+.theme .menu{position:absolute;right:0;top:42px;z-index:8;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:14px;width:230px;display:grid;gap:12px;box-shadow:0 12px 30px -12px rgba(0,0,0,.45)}
+.theme .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);border-radius:9px;padding:3px}
+.theme .seg button{border:0;background:none;border-radius:7px;padding:6px 0;font-size:13px;font-weight:600;color:var(--muted)}
+.theme .seg button[aria-pressed="true"]{background:var(--surface2);color:var(--ink)}
+.swatches{display:flex;gap:8px}
+.swatches button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0;background:var(--sw)}
+.swatches button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--surface)}
 .linkbtn{background:none;border:0;color:var(--accent);font-weight:600;font-size:13px;padding:0}
 
 main{padding-block:24px}
@@ -152,6 +168,9 @@ textarea{min-height:110px;resize:vertical}
 @media (max-width:640px){.opts{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.wl li{grid-template-columns:1fr;gap:2px}.me span.nm{display:none}}
 @media (prefers-reduced-motion:reduce){.flash,.qbar i{transition:none}}
 </style>
+<script>
+(function(){try{var t=JSON.parse(localStorage.getItem('gwd-theme')||'{}');if(t.m==='light'||t.m==='dark')document.documentElement.setAttribute('data-theme',t.m);if(t.a&&t.a!=='indigo')document.documentElement.setAttribute('data-accent',t.a);}catch(e){}})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -159,6 +178,17 @@ textarea{min-height:110px;resize:vertical}
   <a class="brand" href="#sets">GRE Word Drill</a>
   <nav><a href="#sets" data-r="sets">Sets</a><a href="#board" data-r="board">Rankings</a></nav>
   <div class="me" id="me"><span class="nm" id="meName">Checking sign-in…</span></div>
+  <details class="theme" id="theme">
+    <summary aria-label="Theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></summary>
+    <div class="menu">
+      <div><div class="eyebrow" style="margin-bottom:6px">Appearance</div>
+        <div class="seg" id="modeSeg"><button data-m="system">System</button><button data-m="light">Light</button><button data-m="dark">Dark</button></div></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Accent</div>
+        <div class="swatches" id="accSeg">
+          <button data-a="indigo" aria-label="Indigo" style="--sw:#5868F0"></button><button data-a="teal" aria-label="Teal" style="--sw:#1FA597"></button><button data-a="rose" aria-label="Rose" style="--sw:#E0567F"></button><button data-a="amber" aria-label="Amber" style="--sw:#D9890F"></button><button data-a="violet" aria-label="Violet" style="--sw:#9562E8"></button>
+        </div></div>
+    </div>
+  </details>
 </header>
 
 <main>

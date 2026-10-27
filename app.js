@@ -57,19 +57,19 @@ $('filters').querySelectorAll('button').forEach(b => b.onclick = () => {
   filter = b.dataset.f; $('filters').querySelectorAll('button').forEach(o => o.setAttribute('aria-pressed', o === b)); renderHome();
 });
 function setTile(s) {
-  const a = el('a', 'set'); a.href = '#set-' + s.id;
-  const top = el('div', 'top'); top.append(el('span', 'n', s.label));
   const mine = me.sets[s.id];
-  if (mine) top.append(el('span', 'pill ' + (mine.best >= .9 ? 'good' : 'acc'), pct(mine.best)));
-  a.append(top, el('div', 'preview', s.words.slice(0, 3).map(x => x.w).join(', ') + '…'));
+  const a = el('a', 'set' + (mine ? ' done' : '')); a.href = '#set-' + s.id;
+  a.title = s.words.slice(0, 6).map(x => x.w).join(', ') + '…';
+  const head = el('div', 'head'); head.append(el('span', 'lbl', s.custom ? 'Added' : 'Set'), el('span', 'num', s.custom ? s.id.slice(1) : s.id));
+  if (mine) a.append(el('span', 'pill ' + (mine.best >= .9 ? 'good' : 'acc'), pct(mine.best)));
   const known = s.words.filter(x => prog.known.has(x.w)).length;
   const bar = el('div', 'bar'); const i = el('i'); i.style.width = (known / s.words.length * 100) + '%'; bar.append(i);
   const foot = el('div', 'foot');
-  const rk = setRanking(s.id);
-  foot.append(el('span', null, known + '/' + s.words.length + ' known'));
-  const lead = el('span'); if (rk.length) { lead.append('Top: '); lead.append(el('b', null, nameOf(rk[0].p))); lead.append(' ' + pct(rk[0].r.best)); } else lead.textContent = 'No scores yet';
+  foot.append(el('span', null, known + '/' + s.words.length));
+  const rk = setRanking(s.id), lead = el('span', 'lead');
+  if (rk.length) { lead.append(el('b', null, '#1 ')); lead.append(nameOf(rk[0].p).split(' ')[0] + ' ' + pct(rk[0].r.best)); } else lead.textContent = 'Unclaimed';
   foot.append(lead);
-  a.append(bar, foot);
+  a.append(head, bar, foot);
   return a;
 }
 function renderHome() {

@@ -118,13 +118,25 @@ function renderCard() {
   const pos = (ci + 1) + ' / ' + deck.length;
   $('fPos').textContent = pos; $('bPos').textContent = pos;
   $('fWord').textContent = x.w; $('bWord').textContent = x.w; $('bDef').textContent = x.d;
-  $('bFull').textContent = x.f && x.f !== x.d ? x.f : '';
+  fillSyns($('bSyn'), x); fillEx($('bEx'), x);
   const t = $('fTag'); t.innerHTML = '';
   if (prog.known.has(x.w)) t.append(el('span', 'pill good', 'Known')); else if (prog.learning.has(x.w)) t.append(el('span', 'pill bad', 'Learning'));
   const k = curSet.words.filter(w => prog.known.has(w.w)).length, l = curSet.words.filter(w => prog.learning.has(w.w)).length;
   $('pKnown').textContent = k + ' of ' + curSet.words.length + ' known'; $('pLearn').textContent = l + ' still learning';
   $('pBar').style.width = (k / curSet.words.length * 100) + '%';
   $('ctaText').textContent = k === curSet.words.length ? 'You know every word here. Time to quiz.' : 'Ready? Take the quiz to get on this set’s rankings.';
+}
+function fillSyns(host, x) {
+  host.innerHTML = ''; const s = (x.s || []).slice(0, 4); host.hidden = !s.length; if (!s.length) return;
+  host.append(el('span', 'lab', 'Similar'));
+  s.forEach(t => host.append(el('span', null, t)));
+}
+function fillEx(host, x) {
+  host.innerHTML = ''; host.hidden = !x.e; if (!x.e) return;
+  const stem = x.w.slice(0, Math.max(3, x.w.length - 3)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('\\b(' + stem + '[a-z]*)', 'i'), m = x.e.match(re);
+  if (!m) { host.textContent = x.e; return; }
+  host.append(x.e.slice(0, m.index), el('mark', null, m[1]), x.e.slice(m.index + m[1].length));
 }
 function move(d) { ci = (ci + d + deck.length) % deck.length; renderCard(); }
 function mark(kind) {
@@ -158,7 +170,13 @@ $('cShuf').onclick = () => { deck = shuffle(deck); ci = 0; renderCard(); toast('
 $('toQuiz').onclick = () => showTab('quiz');
 function renderList() {
   const ul = $('wlist'); ul.innerHTML = '';
-  curSet.words.forEach(x => { const li = el('li'); li.append(el('b', null, x.w), el('span', null, x.f || x.d)); ul.append(li); });
+  curSet.words.forEach(x => {
+    const li = el('li'), m = el('div', 'meta');
+    m.append(el('div', 'dd', x.d));
+    if (x.s && x.s.length) m.append(el('div', 'ss', 'Similar: ' + x.s.slice(0, 4).join(', ')));
+    if (x.e) m.append(el('div', 'ee', x.e));
+    li.append(el('b', null, x.w), m); ul.append(li);
+  });
 }
 
 /* ---------- quiz ---------- */
@@ -206,7 +224,8 @@ function answer(i) {
   $('qScore').textContent = qc + ' correct';
   const fb = $('qFb'); fb.hidden = false; fb.innerHTML = '';
   const h = el('div', null, ok ? 'Correct' : 'Not quite'); h.style.cssText = 'font-weight:700;color:var(--' + (ok ? 'good' : 'bad') + ')';
-  const line = el('div'); line.append(el('b', null, q.x.w + ' '), document.createTextNode(q.x.f || q.x.d)); fb.append(h, line);
+  const line = el('div'); line.append(el('b', null, q.x.w + ' '), document.createTextNode(q.x.d + (q.x.s && q.x.s.length ? '  ·  similar: ' + q.x.s.slice(0, 3).join(', ') : ''))); fb.append(h, line);
+  if (q.x.e) { const ex = el('p', 'ex'); fillEx(ex, q.x); fb.append(ex); }
   if (!ok) { const y = q.opts[i]; const n = el('div', null, 'You picked: ' + y.w + ' — ' + y.d); n.style.cssText = 'color:var(--muted);margin-top:4px'; fb.append(n); }
   $('qNext').hidden = false; $('qNext').textContent = qi + 1 < Q.length ? 'Next' : 'See result'; $('qNext').focus();
 }

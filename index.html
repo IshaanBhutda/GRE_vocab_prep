@@ -120,7 +120,7 @@ h2{font:700 28px/1.15 var(--f-ui);margin:0;letter-spacing:-.015em;text-wrap:bala
 .tabs button{border:0;background:var(--surface);border-radius:12px;padding:12px 8px;font-weight:600;color:var(--muted)}
 .tabs button[aria-pressed="true"]{background:var(--surface2);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
 .scene{perspective:1400px}
-.flash{position:relative;height:340px;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,.7,.3,1);cursor:pointer}
+.flash{position:relative;height:380px;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,.7,.3,1);cursor:pointer}
 .flash.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:16px;padding:20px 26px;display:flex;flex-direction:column}
 .face .hd{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:600}
@@ -134,7 +134,17 @@ h2{font:700 28px/1.15 var(--f-ui);margin:0;letter-spacing:-.015em;text-wrap:bala
 .back2{transform:rotateY(180deg)}
 .back2 .body{margin:auto 0;display:grid;gap:10px}
 .back2 .d{font:500 clamp(20px,4.4vw,26px)/1.35 var(--f-word);margin:0}
-.back2 .f{color:var(--muted);font-size:14px;margin:0}
+.back2 .body{gap:14px}
+.syns{display:flex;flex-wrap:wrap;gap:6px}
+.syns span{background:var(--surface2);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:500}
+.syns .lab{background:none;color:var(--muted);padding:3px 2px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.ex{margin:0;font:italic 500 17px/1.45 var(--f-word);color:var(--muted);border-left:3px solid var(--accent);padding-left:12px}
+.ex mark{background:none;color:var(--ink);font-weight:600}
+.wl .meta{display:grid;gap:4px;min-width:0}
+.wl .meta .dd{color:var(--ink);font-size:14px}
+.wl .meta .ss{color:var(--muted);font-size:13px}
+.wl .meta .ee{color:var(--muted);font:italic 15px/1.4 var(--f-word)}
+.fb .ex{font-size:15px;margin-top:8px}
 .cardnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
 .round{width:52px;height:44px;border-radius:999px;border:0;background:var(--surface2);font-size:18px}
 .marks{display:flex;gap:8px}
@@ -253,7 +263,7 @@ textarea{min-height:110px;resize:vertical}
   <div id="t-prep">
     <div class="scene"><div class="flash" id="flash" tabindex="0" role="button" aria-label="Flip card">
       <div class="face front"><div class="hd"><span id="fPos"></span><span class="hdr"><span id="fTag"></span><button class="speak" id="fSpeak" type="button" aria-label="Hear the word" title="Hear it (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></span></div><div class="w" id="fWord"></div></div>
-      <div class="face back2"><div class="hd"><span id="bWord" style="font:600 18px var(--f-word);color:var(--ink)"></span><span class="hdr"><span id="bPos"></span><button class="speak" id="bSpeak" type="button" aria-label="Hear the word" title="Hear it (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></span></div><div class="body"><p class="d" id="bDef"></p><p class="f" id="bFull"></p></div></div>
+      <div class="face back2"><div class="hd"><span id="bWord" style="font:600 18px var(--f-word);color:var(--ink)"></span><span class="hdr"><span id="bPos"></span><button class="speak" id="bSpeak" type="button" aria-label="Hear the word" title="Hear it (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></span></div><div class="body"><p class="d" id="bDef"></p><div class="syns" id="bSyn"></div><p class="ex" id="bEx"></p></div></div>
     </div></div>
     <div class="cardnav">
       <button class="round" id="cPrev" aria-label="Previous card">←</button>
